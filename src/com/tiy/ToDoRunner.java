@@ -20,7 +20,6 @@ public class ToDoRunner {
 
     Scanner scanner;
 
-    //List<ToDoItem> todoList;
     ToDoDatabase toDoDatabase;
     Connection conn;
 
@@ -34,10 +33,11 @@ public class ToDoRunner {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+        System.out.println("Done main");
     }
 
     public ToDoRunner () throws SQLException {
-        Server.createWebServer().start();
+        //Server.createWebServer().start();
         conn = DriverManager.getConnection(DB_PATH);
         scanner = new Scanner(System.in);
         toDoDatabase = new ToDoDatabase();
@@ -46,24 +46,23 @@ public class ToDoRunner {
     public void startInterface() throws SQLException {
         System.out.println("Welcome to T0-D0.");
         toDoDatabase.init();
-        //init from database
         mainMenu();
-        //push to db
+        toDoDatabase.closeServer();
     }
 
     public void mainMenu () throws SQLException {
-
         List<ToDoItem> todos = toDoDatabase.selectToDos(conn);
-
+        int index = 0;
+        System.out.println("List of to-dos");
         for (ToDoItem todoItem : todos) {
-            System.out.println(todoItem);
+            index++;
+            System.out.println(index + ". " + todoItem);
         }
 
         System.out.println("Options:");
         System.out.println("1. Add a todo");
         System.out.println("2. Remove or change a todo");
-        System.out.println("3. Clear list");
-        System.out.println("4. Exit");
+        System.out.println("3. Exit");
 
         int userChoice = Integer.parseInt(scanner.nextLine());
         switch (userChoice) {
@@ -79,10 +78,8 @@ public class ToDoRunner {
                 System.out.println("Remove, or change status? (r/c)");
                 String actionChoice = scanner.nextLine().toLowerCase();
                 if (actionChoice.contains("r")) {
-                    //todoList.remove(userIndex);
                     toDoDatabase.deleteToDo(conn, todos.get(userIndex).getText());
                 } else if (actionChoice.contains("c")) {
-                    //todoList.get(userIndex).setDone();
                     toDoDatabase.toggleToDo(conn, todos.get(userIndex).getText());
                 } else {
                     System.out.println("You dun messed up good, kid.");
@@ -90,11 +87,6 @@ public class ToDoRunner {
                 mainMenu();
                 break;
             case 3:
-                //clear list
-                mainMenu();
-                break;
-            case 4:
-                //exit. Break/exit. Breaxit. Brexit! Gah
                 break;
         }
     }

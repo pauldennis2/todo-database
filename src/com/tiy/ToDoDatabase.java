@@ -10,10 +10,13 @@ import java.util.ArrayList;
  */
 public class ToDoDatabase {
 
+    private Server server;
+
     public final static String DB_PATH = "jdbc:h2:./main";
 
     public void init () throws SQLException {
-        Server.createWebServer().start();
+        server = Server.createWebServer();
+        server.start();
         Connection conn = DriverManager.getConnection(DB_PATH);
         Statement statement = conn.createStatement();
         statement.execute("CREATE TABLE IF NOT EXISTS todos (id IDENTITY, text VARCHAR, is_done BOOLEAN)");
@@ -60,5 +63,9 @@ public class ToDoDatabase {
         boolean isDone = results.getBoolean("is_done");
         ToDoItem retrievedTodo = new ToDoItem(id, retrievedText, isDone);
         return retrievedTodo;
+    }
+
+    public void closeServer () {
+        server.stop();
     }
 }

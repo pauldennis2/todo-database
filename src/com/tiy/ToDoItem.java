@@ -6,6 +6,8 @@ public class ToDoItem {
     private String text;
     private boolean isDone;
 
+    public static final String CHECK_MARK = "\u2714";
+
     public ToDoItem(int id, String text, boolean isDone) {
         this.id = id;
         this.text = text;
@@ -26,7 +28,7 @@ public class ToDoItem {
     @Override
     public String toString() {
         if (isDone) {
-            return text + " (done)";
+            return text + CHECK_MARK;
         } else {
             return text;
         }
