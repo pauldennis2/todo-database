@@ -83,7 +83,7 @@ public class ToDoRunner {
                     toDoDatabase.deleteToDo(conn, todos.get(userIndex).getText());
                 } else if (actionChoice.contains("c")) {
                     //todoList.get(userIndex).setDone();
-                    toDoDatabase.
+                    toDoDatabase.toggleToDo(conn, todos.get(userIndex).getText());
                 } else {
                     System.out.println("You dun messed up good, kid.");
                 }
