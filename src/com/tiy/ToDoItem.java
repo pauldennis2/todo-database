@@ -2,14 +2,24 @@ package com.tiy;
 
 public class ToDoItem {
 
+    private User user;
     private int id;
     private String text;
     private boolean isDone;
+
+    public static final String CHECK_MARK = "\u2714";
 
     public ToDoItem(int id, String text, boolean isDone) {
         this.id = id;
         this.text = text;
         this.isDone = isDone;
+    }
+
+    public ToDoItem(int id, String text, boolean isDone, User user) {
+        this.id = id;
+        this.text = text;
+        this.isDone = isDone;
+        this.user = user;
     }
 
     public ToDoItem() {
@@ -26,13 +36,14 @@ public class ToDoItem {
     @Override
     public String toString() {
         if (isDone) {
-            return text + " (done)";
+            return text + CHECK_MARK;
         } else {
             return text;
         }
         // A one-line version of the logic above:
         // return text + (isDone ? " (done)" : "");
     }
+
 
     public String getText() {
         return text;
@@ -48,5 +59,9 @@ public class ToDoItem {
 
     public void setDone(boolean done) {
         isDone = done;
+    }
+
+    public User getUser () {
+        return user;
     }
 }

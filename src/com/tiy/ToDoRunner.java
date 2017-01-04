@@ -1,15 +1,8 @@
 package com.tiy;
 
-import org.h2.tools.Server;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -20,9 +13,10 @@ public class ToDoRunner {
 
     Scanner scanner;
 
-    //List<ToDoItem> todoList;
     ToDoDatabase toDoDatabase;
     Connection conn;
+
+    String activeUserName;
 
     public static final String DB_PATH = "jdbc:h2:./main";
 
@@ -37,7 +31,7 @@ public class ToDoRunner {
     }
 
     public ToDoRunner () throws SQLException {
-        Server.createWebServer().start();
+        //Server.createWebServer().start();
         conn = DriverManager.getConnection(DB_PATH);
         scanner = new Scanner(System.in);
         toDoDatabase = new ToDoDatabase();
@@ -45,31 +39,42 @@ public class ToDoRunner {
 
     public void startInterface() throws SQLException {
         System.out.println("Welcome to T0-D0.");
+        System.out.println("Please log in. Enter username:");
+        activeUserName = scanner.nextLine();
         toDoDatabase.init();
-        //init from database
         mainMenu();
-        //push to db
+        toDoDatabase.closeServer();
     }
 
     public void mainMenu () throws SQLException {
-
-        List<ToDoItem> todos = toDoDatabase.selectToDos(conn);
-
-        for (ToDoItem todoItem : todos) {
-            System.out.println(todoItem);
+        //List<ToDoItem> todos = toDoDatabase.selectTodos(conn);
+        int userId;
+        try {
+            userId = toDoDatabase.retrieveUser(conn, activeUserName).getUserId();
+            System.out.println("Welcome back " + activeUserName);
+        } catch (SQLException ex) {
+            System.out.println("New user detected. Please full name:");
+            String fullName = scanner.nextLine();
+            userId = toDoDatabase.insertUser(conn, activeUserName, fullName);
+        }
+        List<ToDoItem> userTodos = toDoDatabase.selectToDosForUser(conn, userId);
+        int printIndex = 1;
+        System.out.println("List of to-dos");
+        for (ToDoItem todoItem : userTodos) {
+            System.out.println(printIndex + ". " + todoItem);
+            printIndex++;
         }
 
         System.out.println("Options:");
         System.out.println("1. Add a todo");
         System.out.println("2. Remove or change a todo");
-        System.out.println("3. Clear list");
-        System.out.println("4. Exit");
+        System.out.println("3. Exit");
 
         int userChoice = Integer.parseInt(scanner.nextLine());
         switch (userChoice) {
             case 1:
                 System.out.println("Todo item to add?");
-                toDoDatabase.insertToDo(conn, scanner.nextLine());
+                toDoDatabase.insertToDo(conn, scanner.nextLine(), userId);
                 mainMenu();
                 break;
             case 2:
@@ -79,22 +84,15 @@ public class ToDoRunner {
                 System.out.println("Remove, or change status? (r/c)");
                 String actionChoice = scanner.nextLine().toLowerCase();
                 if (actionChoice.contains("r")) {
-                    //todoList.remove(userIndex);
-                    toDoDatabase.deleteToDo(conn, todos.get(userIndex).getText());
+                    toDoDatabase.deleteToDo(conn, userTodos.get(userIndex).getText(), userId);
                 } else if (actionChoice.contains("c")) {
-                    //todoList.get(userIndex).setDone();
-                    toDoDatabase.toggleToDo(conn, todos.get(userIndex).getText());
+                    toDoDatabase.toggleToDo(conn, userTodos.get(userIndex).getText(), userId);
                 } else {
                     System.out.println("You dun messed up good, kid.");
                 }
                 mainMenu();
                 break;
             case 3:
-                //clear list
-                mainMenu();
-                break;
-            case 4:
-                //exit. Break/exit. Breaxit. Brexit! Gah
                 break;
         }
     }
